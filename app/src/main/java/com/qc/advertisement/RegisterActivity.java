@@ -18,6 +18,9 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -36,6 +39,12 @@ public class RegisterActivity extends Activity implements View.OnClickListener {
     Button nextCommitBtn;
     @Bind(R.id.rl_iphone)
     RelativeLayout rlIphone;
+    @Bind(R.id.login_input_password_et)
+    EditText loginInputPasswordEt;
+    @Bind(R.id.login_input_repassword_et)
+    EditText loginInputRepasswordEt;
+    @Bind(R.id.login_hint)
+    TextView loginHint;
 
     // 手机号输入框
     private EditText inputPhoneEt;
@@ -47,6 +56,7 @@ public class RegisterActivity extends Activity implements View.OnClickListener {
     private Button commitBtn;
     //
     int i = 30;
+    private boolean count = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,6 +94,7 @@ public class RegisterActivity extends Activity implements View.OnClickListener {
         //注册回调监听接口
         SMSSDK.registerEventHandler(eventHandler);
     }
+
     @Override
     public void onClick(View v) {
         String phoneNums = inputPhoneEt.getText().toString();
@@ -94,6 +105,7 @@ public class RegisterActivity extends Activity implements View.OnClickListener {
                 if (!judgePhoneNums(phoneNums)) {
                     return;
                 }
+                count = true;
                 // 2. 通过sdk发送短信验证
                 SMSSDK.getVerificationCode("86", phoneNums);
                 // 3. 把按钮变成不可点击，并且显示倒计时（正在获取）
@@ -122,6 +134,25 @@ public class RegisterActivity extends Activity implements View.OnClickListener {
                 break;
 
             case R.id.login_commit_btn:
+                if(!judgePhoneNums(phoneNums)){
+                    loginHint.setText("*请输入11位手机号码");
+                    loginHint.setVisibility(View.VISIBLE);
+                    return;
+                }
+                if(!count){
+                    loginHint.setText("*请点击按钮获取验证码");
+                    loginHint.setVisibility(View.VISIBLE);
+                    return;
+                }
+                if(TextUtils.isEmpty(inputCodeEt.getText().toString().trim())){
+
+                    loginHint.setText("*请输入验证码");
+                    loginHint.setVisibility(View.VISIBLE);
+                    return;
+                }
+                if (!judgePassword()) {
+                    return;
+                }
                 //将收到的验证码和手机号提交再次核对
                 SMSSDK.submitVerificationCode("86", phoneNums, inputCodeEt
                         .getText().toString());
@@ -130,13 +161,61 @@ public class RegisterActivity extends Activity implements View.OnClickListener {
         }
     }
 
+    private Boolean judgePassword() {
+        String password = loginInputPasswordEt.getText().toString().trim();
+        String rePassword = loginInputRepasswordEt.getText().toString().trim();
+        if (TextUtils.isEmpty(password) || TextUtils.isEmpty(rePassword)) {
+            loginHint.setText("*密码不能为空，请重新输入");
+            loginHint.setVisibility(View.VISIBLE);
+            return false;
+        }
+        if (!password.equals(rePassword)) {
+            loginInputRepasswordEt.setText("");
+            loginHint.setText("*两次密码不相同，请重新输入");
+            loginHint.setVisibility(View.VISIBLE);
+            return false;
+        }
+        if (password.length() < 6 || rePassword.length() < 6) {
+            loginHint.setText("*密码长度必须大于6小于20");
+            loginHint.setVisibility(View.VISIBLE);
+            return false;
+        }
+        String reg = "^[A-Za-z][A-Za-z0-9_-]+$";
+        if(password.matches(reg) && password.matches(reg)){
+
+        }else{
+            loginHint.setText("*密码首位必须为字母");
+            loginHint.setVisibility(View.VISIBLE);
+            return false;
+        }
+       /* String reg = "^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,20}$";
+        Pattern p = Pattern.compile(reg);
+        Matcher m1 = p.matcher(password);
+        boolean b1 = m1.matches();
+        Matcher m2 = p.matcher(password);
+        boolean b2 = m2.matches();
+        if (!b1) {
+            loginHint.setText("*密码首位必须为字母");
+            loginHint.setVisibility(View.VISIBLE);
+            loginInputRepasswordEt.setText("");
+            return false;
+        }
+        if (!b2) {
+            loginHint.setText("*密码首位必须为字母");
+            loginHint.setVisibility(View.VISIBLE);
+            loginInputRepasswordEt.setText("");
+            return false;
+        }*/
+        return true;
+    }
+
     /**
      *
      */
     Handler handler = new Handler() {
         public void handleMessage(Message msg) {
             if (msg.what == -9) {
-                nextCommitBtn.setText("重新发送("+i+")");
+                nextCommitBtn.setText("重新发送(" + i + ")");
             } else if (msg.what == -8) {
                 nextCommitBtn.setText("获取验证码");
                 nextCommitBtn.setClickable(true);
@@ -146,26 +225,31 @@ public class RegisterActivity extends Activity implements View.OnClickListener {
                 int result = msg.arg2;
                 Object data = msg.obj;
                 Log.e("event", "event=" + event);
+
                 if (result == SMSSDK.RESULT_COMPLETE) {
                     // 短信注册成功后，返回MainActivity,然后提示
                     if (event == SMSSDK.EVENT_SUBMIT_VERIFICATION_CODE) {// 提交验证码成功
+                        loginHint.setVisibility(View.GONE);
                         Toast.makeText(getApplicationContext(), "提交验证码成功",
                                 Toast.LENGTH_SHORT).show();
                         Intent intent = new Intent(RegisterActivity.this,
                                 IndexActivity.class);
                         startActivity(intent);
+                        finish();
                     } else if (event == SMSSDK.EVENT_GET_VERIFICATION_CODE) {
                         Toast.makeText(getApplicationContext(), "正在获取验证码",
                                 Toast.LENGTH_SHORT).show();
                     } else {
                         ((Throwable) data).printStackTrace();
                     }
+                }else{
+                    loginHint.setText("*验证码错误");
+                    loginHint.setVisibility(View.VISIBLE);
+                    return ;
                 }
             }
         }
     };
-
-
     /**
      * 判断手机号码是否合理
      *
@@ -176,7 +260,8 @@ public class RegisterActivity extends Activity implements View.OnClickListener {
                 && isMobileNO(phoneNums)) {
             return true;
         }
-        Toast.makeText(this, "手机号码输入有误！", Toast.LENGTH_SHORT).show();
+        loginHint.setText("*手机号码输入有误！");
+        loginHint.setVisibility(View.VISIBLE);
         return false;
     }
 
@@ -233,18 +318,18 @@ public class RegisterActivity extends Activity implements View.OnClickListener {
 
     @OnClick(R.id.title_bar_back)
     public void onViewClicked() {
-        if (rlIphone.getVisibility() == View.GONE){
+        if (rlIphone.getVisibility() == View.GONE) {
             rlIphone.setVisibility(View.INVISIBLE);
-        }else{
+        } else {
             finish();
         }
     }
 
     @Override
     public void onBackPressed() {
-        if (rlIphone.getVisibility() == View.GONE){
+        if (rlIphone.getVisibility() == View.GONE) {
             rlIphone.setVisibility(View.INVISIBLE);
-        }else{
+        } else {
             super.onBackPressed();
         }
 

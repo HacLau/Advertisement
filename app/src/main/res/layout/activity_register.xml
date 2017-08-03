@@ -14,6 +14,7 @@
         android:layout_marginTop="41dp"
         android:layout_below="@+id/include"
         android:layout_centerHorizontal="true">
+
         <EditText
             android:id="@+id/login_input_phone_et"
             android:layout_width="match_parent"
@@ -25,12 +26,8 @@
             android:paddingLeft="5dp"
             android:textSize="@dimen/text_size"
             android:background="@drawable/edit_shape"
-            android:hint="请输入手机号"
+            android:hint="11位手机号码"
             android:inputType="phone" />
-
-
-
-
         <Button
             android:id="@+id/next_commit_btn"
             android:layout_width="wrap_content"
@@ -49,23 +46,62 @@
         <EditText
             android:layout_below="@+id/login_input_phone_et"
             android:id="@+id/login_input_code_et"
-            android:layout_width="wrap_content"
+            android:layout_width="120dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:hint="请输入验证码"
+            android:hint="验证码"
             android:paddingLeft="5dp"
-            android:paddingRight="40dp"
             android:textSize="@dimen/text_size"
             android:paddingTop="12dp"
             android:paddingBottom="12dp"
-            android:gravity="center_horizontal"
             android:layout_centerHorizontal="true"
             android:layout_alignLeft="@+id/login_input_phone_et"
             android:background="@drawable/edit_shape">
         </EditText>
-        <Button
+        <EditText
+            android:id="@+id/login_input_password_et"
             android:layout_below="@+id/login_input_code_et"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxLength="20"
+            android:layout_marginTop="20dp"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp"
+            android:paddingLeft="5dp"
+            android:textSize="@dimen/text_size"
+            android:background="@drawable/edit_shape"
+            android:hint="输入密码"
+            android:inputType="textPassword" />
+        <EditText
+            android:id="@+id/login_input_repassword_et"
+            android:layout_below="@+id/login_input_password_et"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxLength="20"
+            android:layout_marginTop="20dp"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp"
+            android:paddingLeft="5dp"
+            android:textSize="@dimen/text_size"
+            android:background="@drawable/edit_shape"
+            android:hint="确认密码"
+            android:inputType="textPassword"/>
+        <TextView
+            android:id="@+id/login_hint"
+            android:layout_below="@+id/login_input_repassword_et"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/colorRed"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp"
+            android:paddingLeft="5dp"
+            android:layout_marginTop="20dp"
+            android:visibility="gone"
+            />
+
+        <Button
             android:id="@+id/login_commit_btn"
+            android:layout_below="@+id/login_hint"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/button_shape"
@@ -75,5 +111,6 @@
             android:layout_alignLeft="@+id/login_input_phone_et"
             android:textSize="@dimen/text_size"
             android:text="下一步"/>
+
     </RelativeLayout>
 </RelativeLayout>

@@ -8,4 +8,5 @@
     <color name="colorWhite">#ffffff</color>
     <color name="colorGrayC">#cccccc</color>
     <color name="colorGray9">#999999</color>
+    <color name="colorRed">#ff0000</color>
 </resources>
