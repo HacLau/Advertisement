@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">云速广告</string>
+    <string name="app_logo">互联网广告制作与投放平台</string>
+    <string name="title_activity_index">首页</string>
+
+    <string name="navigation_drawer_open">打开</string>
+    <string name="navigation_drawer_close">关闭</string>
+
+    <string name="action_settings">设置</string>
+</resources>
